@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio17.html</title>
+</head>
+<body>
+    <h2>기본 audio(src속성 과 contorls만 사용) 태그</h2>
+    <audio src="Media/audio.mp3" controls></audio>
+
+    <h2>audio하위 태그인 &lt;source&gt;태그 사용</h2>
+    <audio controls>
+        <!--아래 중 지원하는 미디어만 재생됨.즉 하나만 재생됨-->      
+        <source src="Media/audio.ogg" type="audio/ogg"/>
+        <source src="Media/audio.mp3" type="audio/mp3"/>
+    </audio>
+    <h2>커스텀 오디오</h2>
+    <div>
+        <progress  value="0"></progress>
+    </div>
+    <div>
+        <input type="button" value="PLAY" onclick="play();"/>
+        <input type="button" value="PAUSE" onclick="pause();"/>
+        <input type="button" value="STOP" onclick="stop();"/>
+        <input type="button" value="MUTE" onclick="mute();"/>
+        &nbsp;&nbsp;<span id="current"></span> / <span id="total"></span>
+    </div>
+    <script>
+        //Audio객체 생성
+        //방법1)
+        //var audio=new Audio();//<audio></audio>
+        //console.log('%O',audio);
+        //audio.currentSrc='Media/audio.mp3';
+        //audio.play();//[x]NotAllowedError
+        //방법2)
+        //var audio=new Audio('Media/audio.mp3');
+        //방법3)
+        var audio = document.createElement('audio');
+        audio.setAttribute('src','Media/audio.mp3');
+
+        var currentNode= document.querySelector('#current');
+        var totalNode = document.querySelector('#total');
+        var progressNode = document.querySelector('progress');
+
+        //아래 오디오의 속성은 timeupdate 이벤트에서 얻는다
+        console.log('총 재생시간:',audio.duration);//NaN
+        console.log('현재 재생시간:',audio.currentTime);//0
+
+        audio.addEventListener("timeupdate",(e)=>{
+            // console.clear();
+            //console.log('총 재생시간(timeupdate):',e.target.duration);//200.5735
+            //console.log('현재 재생시간(timeupdate):',e.target.currentTime);//4.191
+            var duration=parseInt(e.target.duration);
+            var currentTime=parseInt(e.target.currentTime);
+
+            totalNode.textContent=formatTime(duration);
+            currentNode.textContent=formatTime(currentTime);
+            progressNode.max=duration;
+            progressNode.value=currentTime;
+
+        });
+
+        //재생시간을 0:00초 형태로 변환하는 함수
+        function formatTime(duration){
+            var minutes= Math.floor(duration/60);
+            var seconds= new Number(duration % 60).toString().padStart(2,'0');
+            return `${minutes}:${seconds}`;
+        }
+
+        function play(){
+            audio.play();
+        }
+        function pause(){
+            if(audio.played) audio.pause();
+        }
+        function stop(){
+            //stop()함수 지원 안함
+            //아래처럼 stop효과 기능 구현 
+            if(audio.played){
+                audio.currentTime=0;
+                audio.pause();
+            }
+        }
+        function mute(){
+            if(audio.muted)
+                audio.muted=false;
+            else audio.muted=true;
+        }
+    </script>
+    
+    
+</body>
+</html>
